@@ -5,12 +5,178 @@
     <meta charset="utf-8">
     <title>HTML5-Snake</title>
     <meta name="description" content="Demo of the HTML5 version of the classic game: Snake">
+    <style>
+        #snake {
+            border: 1px solid black;
+            background-color: whitesmoke;
+        }
+    </style>
 </head>
 
 <body>
     <canvas id="snake"></canvas>
     <script type="text/javascript">
-        // TODO
+        /**
+         * HTML5-Snake v1.0.0
+         * This is a HTML5 version of the classic game: Snake
+         *
+         * @author      Christopher Viray
+         * @copyright   (c) 2018 Christopher Viray
+         * @license     MIT
+         * @version     1.0.0
+         */
+
+        // variables
+        var canvas = document.getElementById('snake');
+        var context = canvas.getContext('2d');
+        var boardWidth = 800;
+        var boardHeight = 800;
+        var squareWidth = 40;
+        var squareHeight = 40;
+        var snake = [];
+        var food = { 'x': null, 'y': null };
+        var direction = 'right';
+        var score = 0;
+        var gameover = false;
+
+        // function to initialize the game
+        function init() {
+            // setup board layout
+            canvas.setAttribute('width', boardWidth + 'px');
+            canvas.setAttribute('height', boardHeight + 'px');
+
+            // setup food
+            createFood();
+
+            // setup snake
+            snake.push({ 'x': 0, 'y': 0 });
+            snake.push({ 'x': 40, 'y': 0 });
+
+            // add listener for arrow keys
+            document.onkeydown = this.checkForArrowKeys;
+
+            // run game
+            runGame();
+        }
+
+        // function to draw a single square on the board
+        function drawSquare(x, y, color) {
+            context.beginPath();
+            context.rect(x, y, (squareWidth - 1), (squareHeight - 1));
+            context.fillStyle = color;
+            context.fill();
+            context.lineWidth = 1;
+            context.strokeStyle = 'black';
+            context.stroke();
+        }
+
+        // function to randomly create a food square on the board
+        function createFood() {
+            food.x = Math.floor(Math.random() * (boardWidth / squareWidth)) * squareWidth;
+            food.y = Math.floor(Math.random() * (boardHeight / squareHeight)) * squareHeight;
+            drawSquare(food.x, food.y, 'red');
+        }
+
+        // function to update the position of the snake
+        function updateSnake() {
+
+            // check direction
+            var offsetX = 0;
+            var offsetY = 0;
+            switch (direction) {
+                case 'left':
+                    offsetX = -squareWidth;
+                    break;
+                case 'right':
+                    offsetX = squareWidth;
+                    break;
+                case 'up':
+                    offsetY = -squareHeight;
+                    break;
+                case 'down':
+                    offsetY = squareHeight;
+                    break;
+            }
+
+            // loop thru snake array
+            for (var i = 0; i < snake.length; i++) {
+                // check for x boundary
+                var x = snake[i].x + offsetX;
+                if (x >= boardWidth) {
+                    x = 0;
+                } else if (x < 0) {
+                    x = boardWidth - squareWidth;
+                }
+                snake[i].x = x;
+
+                // check for y boundary
+                var y = snake[i].y + offsetY;
+                if (y >= boardHeight) {
+                    y = 0;
+                } else if (y < 0) {
+                    y = boardHeight - squareHeight;
+                }
+                snake[i].y = y;
+            }
+        }
+
+        // function to handle keyboard presses
+        function checkForArrowKeys(event) {
+            event = event || window.event;
+
+            // defensive check
+            if (event == undefined || event.keyCode == undefined) {
+                return;
+            }
+
+            // update direction depending on arrow key pressed
+            switch (event.keyCode) {
+                case 37:
+                    direction = 'left';
+                    break;
+                case 38:
+                    direction = 'up';
+                    break;
+                case 39:
+                    direction = 'right';
+                    break;
+                case 40:
+                    direction = 'down';
+                    break;
+            }
+        }
+
+        // function to render the whole game: food/snake
+        function render() {
+
+            // render food
+            drawSquare(food.x, food.y, 'red');
+
+            // render snake
+            for (var i = 0; i < snake.length; i++) {
+                drawSquare(snake[i].x, snake[i].y, 'green');
+            }
+        }
+
+        // function to run the game in a giant loop
+        function runGame() {
+            // clear/reset the board
+            context.clearRect(0, 0, boardWidth, boardHeight);
+
+            // render the whole game
+            render();
+
+            // update the snake positions for the next render
+            updateSnake();
+
+            // re-call itself in a giant loop
+            setTimeout(function () {
+                runGame();
+            }, 200);
+        }
+
+        // init and start the game
+        init();
     </script>
 </body>
 
