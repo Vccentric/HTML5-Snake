@@ -35,7 +35,8 @@
         var squareHeight = 40;
         var snake = [];
         var food = { 'x': null, 'y': null };
-        var direction = 'right';
+        var turns = [];
+        var queue = [];
         var score = 0;
         var gameover = false;
 
@@ -51,12 +52,16 @@
             // setup snake
             snake.push({ 'x': 0, 'y': 0 });
             snake.push({ 'x': 40, 'y': 0 });
+            snake.push({ 'x': 80, 'y': 0 });
+
+            // set default starting direction
+            turns.unshift('right');
 
             // add listener for arrow keys
             document.onkeydown = this.checkForArrowKeys;
 
             // run game
-            runGame();
+            setInterval(runGame, 200);
         }
 
         // function to draw a single square on the board
@@ -83,7 +88,7 @@
             // check direction
             var offsetX = 0;
             var offsetY = 0;
-            switch (direction) {
+            switch (turns[0]) {
                 case 'left':
                     offsetX = -squareWidth;
                     break;
@@ -130,6 +135,7 @@
             }
 
             // update direction depending on arrow key pressed
+            var direction = null;
             switch (event.keyCode) {
                 case 37:
                     direction = 'left';
@@ -143,6 +149,11 @@
                 case 40:
                     direction = 'down';
                     break;
+            }
+
+            // check direction
+            if (direction && direction !== turns[0]) {
+                turns.unshift(direction);
             }
         }
 
@@ -163,16 +174,11 @@
             // clear/reset the board
             context.clearRect(0, 0, boardWidth, boardHeight);
 
-            // render the whole game
-            render();
-
             // update the snake positions for the next render
             updateSnake();
 
-            // re-call itself in a giant loop
-            setTimeout(function () {
-                runGame();
-            }, 200);
+            // render the whole game
+            render();
         }
 
         // init and start the game
