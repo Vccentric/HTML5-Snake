@@ -51,11 +51,9 @@
 
             // setup snake
             snake.push({ 'x': 0, 'y': 0 });
-            snake.push({ 'x': 40, 'y': 0 });
-            snake.push({ 'x': 80, 'y': 0 });
 
             // set default starting direction
-            turns.unshift('right');
+            turns.push('right');
 
             // add listener for arrow keys
             document.onkeydown = this.checkForArrowKeys;
@@ -79,7 +77,12 @@
         function createFood() {
             food.x = Math.floor(Math.random() * (boardWidth / squareWidth)) * squareWidth;
             food.y = Math.floor(Math.random() * (boardHeight / squareHeight)) * squareHeight;
-            drawSquare(food.x, food.y, 'red');
+        }
+
+        // function to add-on to snake
+        function addToSnake(x, y) {
+            snake.push({ 'x': x, 'y': y });
+            createFood();
         }
 
         // function to update the position of the snake
@@ -105,8 +108,10 @@
 
             // loop thru snake array
             for (var i = 0; i < snake.length; i++) {
-                // check for x boundary
                 var x = snake[i].x + offsetX;
+                var y = snake[i].y + offsetY;
+
+                // check for x boundary
                 if (x >= boardWidth) {
                     x = 0;
                 } else if (x < 0) {
@@ -115,13 +120,17 @@
                 snake[i].x = x;
 
                 // check for y boundary
-                var y = snake[i].y + offsetY;
                 if (y >= boardHeight) {
                     y = 0;
                 } else if (y < 0) {
                     y = boardHeight - squareHeight;
                 }
                 snake[i].y = y;
+
+                // check if catch food
+                if (x === food.x && y === food.y) {
+                    addToSnake(snake[i].x, snake[i].y);
+                }
             }
         }
 
