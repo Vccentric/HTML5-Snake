@@ -145,23 +145,28 @@
 
             // update direction depending on arrow key pressed
             var direction = null;
+            var oppositeDirection = false; // check for opposite direction
             switch (event.keyCode) {
                 case 37:
                     direction = 'left';
+                    oppositeDirection = (turns[0] == 'right') ? true : false;
                     break;
                 case 38:
                     direction = 'up';
+                    oppositeDirection = (turns[0] == 'down') ? true : false;
                     break;
                 case 39:
                     direction = 'right';
+                    oppositeDirection = (turns[0] == 'left') ? true : false;
                     break;
                 case 40:
                     direction = 'down';
+                    oppositeDirection = (turns[0] == 'up') ? true : false;
                     break;
             }
 
             // check direction
-            if (direction && direction !== turns[0]) {
+            if (direction && direction !== turns[0] && !oppositeDirection) {
                 turns.unshift(direction);
             }
         }
