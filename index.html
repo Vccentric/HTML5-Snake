@@ -35,8 +35,7 @@
         var squareHeight = 40;
         var snake = [];
         var food = { 'x': null, 'y': null };
-        var turns = [];
-        var queue = [];
+        var direction = null;
         var score = 0;
         var gameover = false;
 
@@ -50,16 +49,16 @@
             createFood();
 
             // setup snake
-            snake.push({ 'x': 0, 'y': 0 });
+            addToSnake(0, 0);
 
             // set default starting direction
-            turns.push('right');
+            direction = 'right';
 
             // add listener for arrow keys
             document.onkeydown = this.checkForArrowKeys;
 
             // run game
-            setInterval(runGame, 200);
+            setInterval(runGame, 100);
         }
 
         // function to draw a single square on the board
@@ -81,8 +80,7 @@
 
         // function to add-on to snake
         function addToSnake(x, y) {
-            snake.push({ 'x': x, 'y': y });
-            createFood();
+            snake.unshift({ 'x': x, 'y': y });
         }
 
         // function to update the position of the snake
@@ -91,7 +89,7 @@
             // check direction
             var offsetX = 0;
             var offsetY = 0;
-            switch (turns[0]) {
+            switch (direction) {
                 case 'left':
                     offsetX = -squareWidth;
                     break;
@@ -106,32 +104,32 @@
                     break;
             }
 
-            // loop thru snake array
-            for (var i = 0; i < snake.length; i++) {
-                var x = snake[i].x + offsetX;
-                var y = snake[i].y + offsetY;
+            // check the tail of snake and add offset
+            var x = snake[0].x + offsetX;
+            var y = snake[0].y + offsetY;
 
-                // check for x boundary
-                if (x >= boardWidth) {
-                    x = 0;
-                } else if (x < 0) {
-                    x = boardWidth - squareWidth;
-                }
-                snake[i].x = x;
-
-                // check for y boundary
-                if (y >= boardHeight) {
-                    y = 0;
-                } else if (y < 0) {
-                    y = boardHeight - squareHeight;
-                }
-                snake[i].y = y;
-
-                // check if catch food
-                if (x === food.x && y === food.y) {
-                    addToSnake(snake[i].x, snake[i].y);
-                }
+            // check for x boundary
+            if (x >= boardWidth) {
+                x = 0;
+            } else if (x < 0) {
+                x = boardWidth - squareWidth;
             }
+
+            // check for y boundary
+            if (y >= boardHeight) {
+                y = 0;
+            } else if (y < 0) {
+                y = boardHeight - squareHeight;
+            }
+
+            // check if catch food
+            if (x === food.x && y === food.y) {
+                score++;
+                createFood();
+            } else {
+                snake.pop(); // remove first item of snake
+            }
+            addToSnake(x, y);
         }
 
         // function to handle keyboard presses
@@ -144,30 +142,24 @@
             }
 
             // update direction depending on arrow key pressed
-            var direction = null;
-            var oppositeDirection = false; // check for opposite direction
+            var oppositeDirection = null;
             switch (event.keyCode) {
                 case 37:
-                    direction = 'left';
-                    oppositeDirection = (turns[0] == 'right') ? true : false;
+                    oppositeDirection = 'right';
+                    direction = (direction == oppositeDirection) ? oppositeDirection : 'left';
                     break;
                 case 38:
-                    direction = 'up';
-                    oppositeDirection = (turns[0] == 'down') ? true : false;
+                    oppositeDirection = 'down';
+                    direction = (direction == oppositeDirection) ? oppositeDirection : 'up';
                     break;
                 case 39:
-                    direction = 'right';
-                    oppositeDirection = (turns[0] == 'left') ? true : false;
+                    oppositeDirection = 'left';
+                    direction = (direction == oppositeDirection) ? oppositeDirection : 'right';
                     break;
                 case 40:
-                    direction = 'down';
-                    oppositeDirection = (turns[0] == 'up') ? true : false;
+                    oppositeDirection = 'up';
+                    direction = (direction == oppositeDirection) ? oppositeDirection : 'down';
                     break;
-            }
-
-            // check direction
-            if (direction && direction !== turns[0] && !oppositeDirection) {
-                turns.unshift(direction);
             }
         }
 
