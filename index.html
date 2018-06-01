@@ -6,6 +6,8 @@
     <title>HTML5-Snake</title>
     <meta name="description" content="Demo of the HTML5 version of the classic game: Snake">
     <style>
+        /* CSS for HTML5-Snake v1.0.0 */
+
         #snake {
             border: 1px solid black;
             background-color: whitesmoke;
@@ -14,7 +16,13 @@
 </head>
 
 <body>
+    <h1>HTML5-Snake</h1>
     <canvas id="snake"></canvas>
+    <div id="controls">
+        <button id="start" onclick="start()">Start</button>
+        <label>Score: </label>
+        <span id="score">0</span>
+    </div>
     <script type="text/javascript">
         /**
          * HTML5-Snake v1.0.0
@@ -38,27 +46,34 @@
         var direction = null;
         var score = 0;
         var gameover = false;
+        var loop = null;
 
-        // function to initialize the game
+        // function to setup and start the game
+        function start() {
+            init();
+            setupBoard();
+            createFood();
+            addToSnake(0, 0); // setup snake
+            document.onkeydown = this.checkForArrowKeys; // add listener for arrow keys
+            loop = setInterval(runGameLoop, 100); // run game loop
+        }
+
+        // function to initialize the default values for the game
         function init() {
-            // setup board layout
+            // reset values
+            snake = [];
+            food = { 'x': null, 'y': null };
+            direction = 'right'; // default direction
+            score = 0;
+            gameover = false;
+            clearInterval(loop);
+        }
+
+        // function to setup board layout
+        function setupBoard() {
             canvas.setAttribute('width', boardWidth + 'px');
             canvas.setAttribute('height', boardHeight + 'px');
-
-            // setup food
-            createFood();
-
-            // setup snake
-            addToSnake(0, 0);
-
-            // set default starting direction
-            direction = 'right';
-
-            // add listener for arrow keys
-            document.onkeydown = this.checkForArrowKeys;
-
-            // run game
-            setInterval(runGame, 100);
+            context.clearRect(0, 0, boardWidth, boardHeight); // reset
         }
 
         // function to draw a single square on the board
@@ -84,7 +99,7 @@
         }
 
         // function to update the position of the snake
-        function updateSnake() {
+        function update() {
 
             // check direction
             var offsetX = 0;
@@ -165,7 +180,6 @@
 
         // function to render the whole game: food/snake
         function render() {
-
             // render food
             drawSquare(food.x, food.y, 'red');
 
@@ -176,19 +190,12 @@
         }
 
         // function to run the game in a giant loop
-        function runGame() {
-            // clear/reset the board
-            context.clearRect(0, 0, boardWidth, boardHeight);
-
-            // update the snake positions for the next render
-            updateSnake();
-
-            // render the whole game
-            render();
+        function runGameLoop() {
+            context.clearRect(0, 0, boardWidth, boardHeight); // clear/reset the board
+            update(); // update the snake positions for the next render
+            render(); // render the whole game
         }
 
-        // init and start the game
-        init();
     </script>
 </body>
 
