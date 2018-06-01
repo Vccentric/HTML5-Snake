@@ -89,13 +89,41 @@
 
         // function to randomly create a food square on the board
         function createFood() {
-            food.x = Math.floor(Math.random() * (boardWidth / squareWidth)) * squareWidth;
-            food.y = Math.floor(Math.random() * (boardHeight / squareHeight)) * squareHeight;
+            var numX = Math.floor(Math.random() * (boardWidth / squareWidth)) * squareWidth;
+            var numY = Math.floor(Math.random() * (boardHeight / squareHeight)) * squareHeight;
+
+            // check for collision
+            if (checkForCollision(numX, numY)) {
+                createFood(); // get new random numbers
+            } else {
+                food.x = numX;
+                food.y = numY;
+            }
         }
 
         // function to add-on to snake
         function addToSnake(x, y) {
             snake.unshift({ 'x': x, 'y': y });
+        }
+
+        // function to check for collision with food/snake
+        function checkForCollision(x, y) {
+            var results = false;
+
+            // check for previous food position
+            if (food.x === x && food.y === y) {
+                results = true;
+            }
+
+            // check snake positions
+            for (var i = 0; i < snake.length; i++) {
+                if (snake[i].x === x && snake[i].y === y) {
+                    results = true;
+                    break;
+                }
+            }
+
+            return results;
         }
 
         // function to update the position of the snake
@@ -141,6 +169,10 @@
             if (x === food.x && y === food.y) {
                 score++;
                 createFood();
+            } else if (checkForCollision(x, y)) { // check for collisions
+                gameover = true;
+                clearInterval(loop);
+                return;
             } else {
                 snake.pop(); // remove first item of snake
             }
@@ -187,6 +219,10 @@
             for (var i = 0; i < snake.length; i++) {
                 drawSquare(snake[i].x, snake[i].y, 'green');
             }
+
+            // render score
+            var $score = document.getElementById('score');
+            $score.textContent = score;
         }
 
         // function to run the game in a giant loop
