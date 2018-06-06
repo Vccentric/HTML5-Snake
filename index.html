@@ -41,11 +41,11 @@
         <label>Score: </label>
         <span id="score">0</span>
         <button id="start" onclick="start()">Start</button>
-        <select id="wall" onchange="changeWall()">
+        <select id="wall" onchange="changeWallSetting()">
             <option value='1'>Has Wall</option>
             <option value='0' selected>No Wall</option>
         </select>
-        <select id="speed" onchange="changeGameSpeed()">
+        <select id="speed" onchange="changeGameSpeedSetting()">
             <option value='2'>Fast Speed</option>
             <option value='1' selected>Normal Speed</option>
             <option value='0'>Slow Speed</option>
@@ -99,32 +99,7 @@
             clearInterval(loop);
         }
 
-        // function to show message on board
-        function showMessage(opts) {
-            // create text container
-            context.beginPath();
-            context.rect(100, 240, 400, 100);
-            context.fillStyle = 'white';
-            context.fill();
-            context.lineWidth = 2;
-            context.strokeStyle = 'black';
-            context.stroke();
-
-            // setup text message
-            context.font = '25pt Calibri';
-            context.fillStyle = 'black';
-            switch (opts) {
-                case 'start':
-                    context.fillText('Click Start To Play!!!', 165, 300);
-                    break;
-                case 'end':
-                    context.fillText('Gameover!!!', 220, 280);
-                    context.fillText('Click Start To Play Again!', 135, 320);
-                    break;
-            }
-        }
-
-        // function to setup board layout
+        // function to clear board layout
         function clearBoard() {
             context.clearRect(0, 0, boardWidth, boardHeight); // reset
         }
@@ -181,8 +156,7 @@
 
         // function to update the position of the snake
         function update() {
-
-            // check direction
+            // get offset depending on the direction
             var offsetX = 0;
             var offsetY = 0;
             switch (direction) {
@@ -242,13 +216,83 @@
             if (x === food.x && y === food.y) {
                 score += 100;
                 createFood();
+                addToSnake(x, y);
             } else if (checkForCollision(x, y)) { // check for collisions
                 endGame();
                 return;
             } else {
                 snake.pop(); // remove first item of snake
+                addToSnake(x, y);
             }
-            addToSnake(x, y);
+        }
+
+        // function to render the whole game: food/snake
+        function render() {
+            // render food
+            drawSquare(food.x, food.y, 'red');
+
+            // render snake
+            for (var i = 0; i < snake.length; i++) {
+                drawSquare(snake[i].x, snake[i].y, 'green');
+            }
+
+            // render score
+            var $score = document.getElementById('score');
+            $score.textContent = score;
+        }
+
+        // function to run the game in a giant loop
+        function runGameLoop() {
+            clearBoard(); // clear/reset the board
+            update(); // update the snake positions for the next render
+            if (!gameover) { // check for gameover
+                render(); // render the whole game
+            }
+        }
+
+        // function to end the game
+        function endGame() {
+            gameover = true;
+            clearInterval(loop);
+            showMessage('end');
+        }
+
+        // function to change wall setting
+        function changeWallSetting() {
+            var $elm = document.getElementById("wall");
+            var opt = $elm.value;
+            hasWall = (opt === '1') ? true : false;
+            $elm.blur(); // clear focus
+        }
+
+        // function to change game speed setting
+        function changeGameSpeedSetting() {
+            var $elm = document.getElementById("speed");
+            var opt = $elm.value;
+            var changed = false;
+
+            // check setting
+            switch (opt) {
+                case '2':
+                    gameSpeed = 50;
+                    changed = true;
+                    break;
+                case '1':
+                    gameSpeed = 100;
+                    changed = true;
+                    break;
+                case '0':
+                    gameSpeed = 200;
+                    changed = true;
+                    break;
+            }
+
+            // change loop with new speed
+            if (changed && loop !== null) {
+                clearInterval(loop);
+                loop = setInterval(runGameLoop, gameSpeed); // run game loop
+            }
+            $elm.blur(); // clear focus
         }
 
         // function to handle keyboard presses
@@ -282,71 +326,31 @@
             }
         }
 
-        // function to render the whole game: food/snake
-        function render() {
-            // render food
-            drawSquare(food.x, food.y, 'red');
+        // function to show message on board
+        function showMessage(opts) {
+            // create message container
+            context.beginPath();
+            context.rect(100, 240, 400, 100);
+            context.fillStyle = 'white';
+            context.fill();
+            context.lineWidth = 2;
+            context.strokeStyle = 'black';
+            context.stroke();
 
-            // render snake
-            for (var i = 0; i < snake.length; i++) {
-                drawSquare(snake[i].x, snake[i].y, 'green');
-            }
-
-            // render score
-            var $score = document.getElementById('score');
-            $score.textContent = score;
-        }
-
-        // function to run the game in a giant loop
-        function runGameLoop() {
-            clearBoard(); // clear/reset the board
-            update(); // update the snake positions for the next render
-            if (!gameover) {
-                render(); // render the whole game
-            }
-        }
-
-        // function to end the game
-        function endGame() {
-            gameover = true;
-            clearInterval(loop);
-            showMessage('end');
-        }
-
-        // function to change wall setting
-        function changeWall() {
-            var $elm = document.getElementById("wall");
-            var opt = $elm.value;
-            hasWall = (opt === '1') ? true : false;
-            $elm.blur(); // clear focus
-        }
-
-        // function to change game speed setting
-        function changeGameSpeed() {
-            var $elm = document.getElementById("speed");
-            var opt = $elm.value;
-            var changed = false;
-            switch (opt) {
-                case '2':
-                    gameSpeed = 50;
-                    changed = true;
+            // setup text message
+            context.font = '25pt Calibri';
+            context.fillStyle = 'black';
+            switch (opts) {
+                case 'start':
+                    context.fillText('Click Start To Play!!!', 165, 300);
                     break;
-                case '1':
-                    gameSpeed = 100;
-                    changed = true;
+                case 'end':
+                    context.fillText('Gameover!!!', 220, 280);
+                    context.fillText('Click Start To Play Again!', 135, 320);
                     break;
-                case '0':
-                    gameSpeed = 200;
-                    changed = true;
+                default:
                     break;
             }
-
-            // change loop with new speed
-            if (changed && loop !== null) {
-                clearInterval(loop);
-                loop = setInterval(runGameLoop, gameSpeed); // run game loop
-            }
-            $elm.blur(); // clear focus
         }
 
         // show start message on startup
