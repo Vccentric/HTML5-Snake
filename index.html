@@ -25,7 +25,7 @@
             margin: 0 auto;
         }
 
-        #boundary,
+        #wall,
         #start,
         #speed {
             float: right;
@@ -41,9 +41,9 @@
         <label>Score: </label>
         <span id="score">0</span>
         <button id="start" onclick="start()">Start</button>
-        <select id="boundary" onchange="changeBoundary()">
-            <option value='1'>Has Boundary</option>
-            <option value='0' selected>No Boundary</option>
+        <select id="wall" onchange="changeWall()">
+            <option value='1'>Has Wall</option>
+            <option value='0' selected>No Wall</option>
         </select>
         <select id="speed" onchange="changeGameSpeed()">
             <option value='2'>Fast Speed</option>
@@ -75,7 +75,7 @@
         var score = 0;
         var gameover = false;
         var loop = null;
-        var hasBoundary = false;
+        var hasWall = false;
         var gameSpeed = 100;
 
         // function to setup and start the game
@@ -206,14 +206,14 @@
 
             // check for x boundary
             if (x >= boardWidth) {
-                if (hasBoundary) {
+                if (hasWall) {
                     endGame();
                     return;
                 } else {
                     x = 0;
                 }
             } else if (x < 0) {
-                if (hasBoundary) {
+                if (hasWall) {
                     endGame();
                     return;
                 } else {
@@ -223,14 +223,14 @@
 
             // check for y boundary
             if (y >= boardHeight) {
-                if (hasBoundary) {
+                if (hasWall) {
                     endGame();
                     return;
                 } else {
                     y = 0;
                 }
             } else if (y < 0) {
-                if (hasBoundary) {
+                if (hasWall) {
                     endGame();
                     return;
                 } else {
@@ -299,9 +299,9 @@
 
         // function to run the game in a giant loop
         function runGameLoop() {
+            clearBoard(); // clear/reset the board
+            update(); // update the snake positions for the next render
             if (!gameover) {
-                clearBoard(); // clear/reset the board
-                update(); // update the snake positions for the next render
                 render(); // render the whole game
             }
         }
@@ -313,11 +313,11 @@
             showMessage('end');
         }
 
-        // function to change bondary setting
-        function changeBoundary() {
-            var $elm = document.getElementById("boundary");
+        // function to change wall setting
+        function changeWall() {
+            var $elm = document.getElementById("wall");
             var opt = $elm.value;
-            hasBoundary = (opt === '1') ? true : false;
+            hasWall = (opt === '1') ? true : false;
             $elm.blur(); // clear focus
         }
 
