@@ -11,6 +11,24 @@
         #snake {
             border: 1px solid black;
             background-color: whitesmoke;
+            display: block;
+            margin: 0 auto 10px;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        #controls {
+            display: block;
+            width: 600px;
+            margin: 0 auto;
+        }
+
+        #boundary,
+        #start {
+            float: right;
+            margin: 0 5px;
         }
     </style>
 </head>
@@ -21,11 +39,11 @@
     <div id="controls">
         <label>Score: </label>
         <span id="score">0</span>
+        <button id="start" onclick="start()">Start</button>
         <select id="boundary" onchange="changeBoundary()">
             <option value='1'>Has Boundary</option>
             <option value='0' selected>No Boundary</option>
         </select>
-        <button id="start" onclick="start()">Start</button>
     </div>
     <script type="text/javascript">
         /**
