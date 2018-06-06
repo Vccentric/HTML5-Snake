@@ -26,7 +26,8 @@
         }
 
         #boundary,
-        #start {
+        #start,
+        #speed {
             float: right;
             margin: 0 5px;
         }
@@ -43,6 +44,11 @@
         <select id="boundary" onchange="changeBoundary()">
             <option value='1'>Has Boundary</option>
             <option value='0' selected>No Boundary</option>
+        </select>
+        <select id="speed" onchange="changeGameSpeed()">
+            <option value='2'>Fast Speed</option>
+            <option value='1' selected>Normal Speed</option>
+            <option value='0'>Slow Speed</option>
         </select>
     </div>
     <script type="text/javascript">
@@ -70,6 +76,7 @@
         var gameover = false;
         var loop = null;
         var hasBoundary = false;
+        var gameSpeed = 100;
 
         // function to setup and start the game
         function start() {
@@ -78,7 +85,7 @@
             createFood();
             addToSnake((boardWidth / 2), (boardHeight / 2)); // setup snake in middle
             document.onkeydown = this.checkForArrowKeys; // add listener for arrow keys
-            loop = setInterval(runGameLoop, 100); // run game loop
+            loop = setInterval(runGameLoop, gameSpeed); // run game loop
         }
 
         // function to initialize the default values for the game
@@ -308,8 +315,38 @@
 
         // function to change bondary setting
         function changeBoundary() {
-            var opt = document.getElementById("boundary").value;
+            var $elm = document.getElementById("boundary");
+            var opt = $elm.value;
             hasBoundary = (opt === '1') ? true : false;
+            $elm.blur(); // clear focus
+        }
+
+        // function to change game speed setting
+        function changeGameSpeed() {
+            var $elm = document.getElementById("speed");
+            var opt = $elm.value;
+            var changed = false;
+            switch (opt) {
+                case '2':
+                    gameSpeed = 50;
+                    changed = true;
+                    break;
+                case '1':
+                    gameSpeed = 100;
+                    changed = true;
+                    break;
+                case '0':
+                    gameSpeed = 200;
+                    changed = true;
+                    break;
+            }
+
+            // change loop with new speed
+            if (changed && loop !== null) {
+                clearInterval(loop);
+                loop = setInterval(runGameLoop, gameSpeed); // run game loop
+            }
+            $elm.blur(); // clear focus
         }
 
         // show start message on startup
